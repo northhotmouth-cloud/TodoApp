@@ -1,3 +1,5 @@
+import { Task } from './types'
+
 export function isOverdue(dueDate: string | null, completed: boolean): boolean {
   if (!dueDate || completed) return false
   const now = new Date()
@@ -7,4 +9,13 @@ export function isOverdue(dueDate: string | null, completed: boolean): boolean {
 
 export function formatDueDate(dueDate: string): string {
   return dueDate.replaceAll('-', '/')
+}
+
+export function sortByDueDate(tasks: Task[]): Task[] {
+  return [...tasks].sort((a, b) => {
+    if (a.dueDate === null && b.dueDate === null) return 0
+    if (a.dueDate === null) return 1
+    if (b.dueDate === null) return -1
+    return a.dueDate < b.dueDate ? -1 : a.dueDate > b.dueDate ? 1 : 0
+  })
 }
