@@ -9,15 +9,23 @@ type TaskItemProps = {
   onToggle: (id: string) => void
   onDelete: (id: string) => void
   onEdit: (id: string, text: string) => void
+  onEditDueDate: (id: string, dueDate: string | null) => void
 }
 
-export function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
-  const [isEditing, setIsEditing] = useState(false)
+export function TaskItem({
+  task,
+  onToggle,
+  onDelete,
+  onEdit,
+  onEditDueDate,
+}: TaskItemProps) {
+  const [isEditingText, setIsEditingText] = useState(false)
   const [draftText, setDraftText] = useState(task.text)
+  const [isEditingDueDate, setIsEditingDueDate] = useState(false)
 
-  function startEditing() {
+  function startEditingText() {
     setDraftText(task.text)
-    setIsEditing(true)
+    setIsEditingText(true)
   }
 
   function commitEdit() {
@@ -25,12 +33,12 @@ export function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
     if (trimmed) {
       onEdit(task.id, trimmed)
     }
-    setIsEditing(false)
+    setIsEditingText(false)
   }
 
   function cancelEdit() {
     setDraftText(task.text)
-    setIsEditing(false)
+    setIsEditingText(false)
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
@@ -53,39 +61,58 @@ export function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
           aria-label="完了"
           className="h-5 w-5 shrink-0 accent-emerald-500"
         />
-        {isEditing ? (
-          <input
-            type="text"
-            value={draftText}
-            autoFocus
-            onChange={(e) => setDraftText(e.target.value)}
-            onBlur={commitEdit}
-            onKeyDown={handleKeyDown}
-            className="flex-1 rounded bg-zinc-700 px-2 py-1 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          />
-        ) : (
-          <span
-            onClick={startEditing}
-            className={
-              task.completed
-                ? 'flex-1 cursor-pointer text-zinc-500 line-through'
-                : 'flex-1 cursor-pointer text-zinc-100'
-            }
-          >
-            {task.text}
-            {task.dueDate && (
-              <span
-                className={
-                  isOverdue(task.dueDate, task.completed)
-                    ? 'block text-xs text-red-400'
-                    : 'block text-xs text-zinc-500'
-                }
-              >
-                期限: {formatDueDate(task.dueDate)}
-              </span>
-            )}
-          </span>
-        )}
+        <div className="flex-1">
+          {isEditingText ? (
+            <input
+              type="text"
+              value={draftText}
+              autoFocus
+              onChange={(e) => setDraftText(e.target.value)}
+              onBlur={commitEdit}
+              onKeyDown={handleKeyDown}
+              className="w-full rounded bg-zinc-700 px-2 py-1 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          ) : (
+            <span
+              onClick={startEditingText}
+              className={
+                task.completed
+                  ? 'cursor-pointer text-zinc-500 line-through'
+                  : 'cursor-pointer text-zinc-100'
+              }
+            >
+              {task.text}
+            </span>
+          )}
+          {isEditingDueDate ? (
+            <input
+              type="date"
+              defaultValue={task.dueDate ?? ''}
+              autoFocus
+              onChange={(e) => onEditDueDate(task.id, e.target.value || null)}
+              onBlur={() => setIsEditingDueDate(false)}
+              className="mt-1 block rounded bg-zinc-700 px-2 py-1 text-xs text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          ) : task.dueDate ? (
+            <span
+              onClick={() => setIsEditingDueDate(true)}
+              className={
+                isOverdue(task.dueDate, task.completed)
+                  ? 'block cursor-pointer text-xs text-red-400'
+                  : 'block cursor-pointer text-xs text-zinc-500'
+              }
+            >
+              期限: {formatDueDate(task.dueDate)}
+            </span>
+          ) : (
+            <span
+              onClick={() => setIsEditingDueDate(true)}
+              className="block cursor-pointer text-xs text-zinc-600 hover:text-zinc-400"
+            >
+              期限を設定
+            </span>
+          )}
+        </div>
       </div>
       <button
         type="button"
