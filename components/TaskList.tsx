@@ -7,9 +7,10 @@ type TaskListProps = {
   tasks: Task[]
   onToggle: (id: string) => void
   onDelete: (id: string) => void
+  onEdit: (id: string, text: string) => void
 }
 
-export function TaskList({ tasks, onToggle, onDelete }: TaskListProps) {
+export function TaskList({ tasks, onToggle, onDelete, onEdit }: TaskListProps) {
   if (tasks.length === 0) {
     return (
       <p className="py-8 text-center text-zinc-500">タスクはまだありません</p>
@@ -24,6 +25,7 @@ export function TaskList({ tasks, onToggle, onDelete }: TaskListProps) {
           task={task}
           onToggle={onToggle}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       ))}
     </ul>
